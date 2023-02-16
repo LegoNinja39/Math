@@ -42,13 +42,23 @@ def power(fx: str) -> str:
     # If there is no exponent, just return the coefficeint
     if not b:
         return str(a)
+
     else:
         bNum = int(b)
-        # Calulates the new values of a and b
-        ap = str(a * bNum) if a else b
-        bp = '^' + str(bNum - 1) if bNum > 2 else ''
 
-        return ap + "x" + bp
+        # If the exponent is 1, remove x
+        if bNum == 1:
+            return str(a)
+        # If the exponent is 0, x == 1 and it's a constant
+        elif bNum == 0:
+            return ''
+        # Else, power rule
+        else:
+            # Calulates the new values of a and b
+            ap = str(a * bNum) if a else b
+            bp = '^' + str(bNum - 1) if bNum > 2 else ''
+
+            return ap + "x" + bp
 
 # endregion
 
@@ -88,11 +98,10 @@ def combineFunction(gPrimes: list[str], symbols: list[str]):
 
     # Iterates through each dirived subfunction and concatinates them
     for i, e in enumerate(gPrimes):
-        fPrime += e
-
-        # If there is another subfunction, add the correct symbol
-        if i < len(gPrimes) - 1:
-            fPrime += symbols[i]
+        # Makes sure there is something in the string
+        if e:
+            # If there is a symbol in front of the subfunction, add the correct symbol
+            fPrime += symbols[i - 1] + e if i > 0 else e
 
     return fPrime
 
@@ -119,4 +128,4 @@ def derivative(fx: str) -> str:
     return fPrime
 
 
-print(derivative("2x^3+3x-5"))
+print(derivative("2x^3+3x^0-5x^1-5"))

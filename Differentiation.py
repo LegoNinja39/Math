@@ -16,16 +16,33 @@ Finds the dirivtive of a function
         ^ : exp
 """
 
-# region Diff Rules : Basics
-
-# First check
+# region Helper Functions
 
 
-def constant(fx: str) -> bool:
+def isConstant(fx: str) -> bool:
     """Returns True if the function is a constant"""
     return True if fx.find('x') == -1 else False
 
-# Second check
+
+def getDegree(fx: str) -> int:
+    """
+    Returns the degree of a function
+
+    Constants return a degree of 0
+    """
+    return int(fx[fx.find('^')+1:]) if fx.find('^') != -1 else 0
+
+
+def getCoefficient(fx: str) -> int:
+    """Returns the coefficient"""
+    if not isConstant(fx):
+        return int(fx[:fx.find('x')]) if fx.find('x') > 0 else 1
+    else:
+        return int(fx)
+
+# endregion
+
+# region Diff Rules : Basics
 
 
 def power(fx: str) -> str:
@@ -61,10 +78,42 @@ def power(fx: str) -> str:
 
 # endregion
 
-# region Parsing
+# region String Manipulation
 
 
 SYMBOL_LIST = ['+', '-', '*', '/']
+
+
+def combine(fxs: list[str]):
+    """
+    Simplifies the subfunctions by combining like terms
+
+    Returns an ordered list based on degree
+    """
+
+    # Simplify
+    for i in range(len(fxs)):
+        # Loop removes summed varibles, so make sure i is in bounds
+        if i >= len(fxs):
+            break
+
+        combined: list[str] = []
+        currFx = fxs[i]
+
+        # Combines all the possible varibles
+        for j in range(i+1, len(fxs)):
+            if getDegree(currFx) == getDegree(fxs[j]):
+                currCoef = getCoefficient(currFx)
+                fxs[i] = str(currCoef + getCoefficient(fxs[j])) + \
+                    currFx[currFx.find(str(currCoef))+1:]
+                combined.append(fxs[j])
+
+        # Removes all the varibles that have been summed
+        fxs = [e for e in fxs if e not in combined]
+
+    # Sort off of degree and returns the sorted list
+    # Negative exponents come before constants (constant degree == 0)
+    return sorted(fxs, reverse=True, key=lambda x: getDegree(x) if not isConstant(x) else float("-inf"))
 
 
 def splitFunction(fx: str) -> tuple[list[str], list[str]]:
@@ -90,11 +139,11 @@ def splitFunction(fx: str) -> tuple[list[str], list[str]]:
     return (subFunctions, symbols)
 
 
-def combineFunction(gPrimes: list[str], symbols: list[str]):
+def combineFunction(gPrimes: list[str], symbols: list[str]) -> str:
     """Combines the subfunctions"""
 
     fPrime: str = ""
-    print(gPrimes)
+
     # Iterates through each dirived subfunction and concatinates them
     for i, e in enumerate(gPrimes):
         # Makes sure there is something in the string
@@ -118,7 +167,7 @@ def derivative(fx: str) -> str:
 
     # Derive every subfunction
     for gx in gxes:
-        if not constant(gx):
+        if not isConstant(gx):
             gPrimes.append(power(gx))
 
     # Create the complete derived function
@@ -127,4 +176,5 @@ def derivative(fx: str) -> str:
     return fPrime
 
 
-print(derivative("2x^3+3x^0-5x^1+x^-6-5"))
+# print(derivative("2x^3+3x^0-5x^1+x^-6-5"))
+print(combine(splitFunction("2x^3+3x^0-5x^1+3x^3+x^-6-5")[0]))

@@ -30,10 +30,9 @@ def constant(fx: str) -> bool:
 
 def power(fx: str) -> str:
     """Takes the function ax^b and returns the derivative as a string"""
-    # TODO Neg powers
     # Seperate the string into its parts
     x = fx.find('x')
-    a = int(fx[:x])
+    a = int(fx[:x]) if x > 0 else 0
 
     # 2 needs to be added to get to the other side of the ^
     # Makes sure the string isn't empty later
@@ -56,7 +55,7 @@ def power(fx: str) -> str:
         else:
             # Calulates the new values of a and b
             ap = str(a * bNum) if a else b
-            bp = '^' + str(bNum - 1) if bNum > 2 else ''
+            bp = '' if bNum == 2 else '^' + str(bNum - 1)
 
             return ap + "x" + bp
 
@@ -78,7 +77,7 @@ def splitFunction(fx: str) -> tuple[list[str], list[str]]:
     # Find all the subfunctions
     for i, e in enumerate(fx):
         # When it finds an algebraic symbol
-        if SYMBOL_LIST.count(e) != 0:
+        if SYMBOL_LIST.count(e) != 0 and fx[i-1].isnumeric():
             # Puts the subfunctions and symbols into lists
             subFunctions.append(fx[lastSubIndex:i])
             symbols.append(fx[i:i+1])
@@ -95,7 +94,7 @@ def combineFunction(gPrimes: list[str], symbols: list[str]):
     """Combines the subfunctions"""
 
     fPrime: str = ""
-
+    print(gPrimes)
     # Iterates through each dirived subfunction and concatinates them
     for i, e in enumerate(gPrimes):
         # Makes sure there is something in the string
@@ -128,4 +127,4 @@ def derivative(fx: str) -> str:
     return fPrime
 
 
-print(derivative("2x^3+3x^0-5x^1-5"))
+print(derivative("2x^3+3x^0-5x^1+x^-6-5"))

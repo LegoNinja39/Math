@@ -67,7 +67,7 @@ def power(fx: str) -> str:
             return str(a)
         # If the exponent is 0, x == 1 and it's a constant
         elif bNum == 0:
-            return ''
+            return '0'
         # Else, power rule
         else:
             # Calulates the new values of a and b
@@ -84,36 +84,36 @@ def power(fx: str) -> str:
 SYMBOL_LIST = ['+', '-', '*', '/']
 
 
-def combine(fxs: list[str]):
-    """
-    Simplifies the subfunctions by combining like terms
-
-    Returns an ordered list based on degree
-    """
-
+def combine(fxs: list[str]) -> list[str]:
+    """Simplifies the subfunctions by combining like terms"""
     # Simplify
     for i in range(len(fxs)):
-        # Loop removes summed varibles, so make sure i is in bounds
+        # Loop removes summed terms, so make sure i is in bounds
         if i >= len(fxs):
             break
 
         combined: list[str] = []
         currFx = fxs[i]
 
-        # Combines all the possible varibles
+        # Combines all the possible terms
         for j in range(i+1, len(fxs)):
             if getDegree(currFx) == getDegree(fxs[j]):
                 currCoef = getCoefficient(currFx)
                 fxs[i] = str(currCoef + getCoefficient(fxs[j])) + \
                     currFx[currFx.find(str(currCoef))+1:]
+
+                # Removes the combined terms later
                 combined.append(fxs[j])
 
-        # Removes all the varibles that have been summed
-        fxs = [e for e in fxs if e not in combined]
+        # Removes all the terms that have been summed
+        # Has to be done this way incase two are the same
+        # i.e. 0-5=-5, double -5
+        for gx in combined:
+            fxs.remove(gx)
 
     # Sort off of degree and returns the sorted list
     # Negative exponents come before constants (constant degree == 0)
-    return sorted(fxs, reverse=True, key=lambda x: getDegree(x) if not isConstant(x) else float("-inf"))
+    return fxs
 
 
 def splitFunction(fx: str) -> tuple[list[str], list[str]]:
@@ -136,6 +136,14 @@ def splitFunction(fx: str) -> tuple[list[str], list[str]]:
     # Gets the last subfuction
     subFunctions.append(fx[lastSubIndex:])
 
+    # If there is a subtract symbol
+    # make the following number negative
+    # and set the symbol to addition
+    for i in range(len(symbols)):
+        if symbols[i] == '-':
+            subFunctions[i + 1] = symbols[i] + subFunctions[i + 1]
+            symbols[i] = '+'
+
     return (subFunctions, symbols)
 
 
@@ -143,6 +151,14 @@ def combineFunction(gPrimes: list[str], symbols: list[str]) -> str:
     """Combines the subfunctions"""
 
     fPrime: str = ""
+
+    # Combine like terms
+    gPrimes = combine(gPrimes)
+
+    # Properly order the terms
+    # Constant goes the the end
+    gPrimes.sort(reverse=True, key=lambda x: getDegree(x)
+                 if not isConstant(x) else float("-inf"))
 
     # Iterates through each dirived subfunction and concatinates them
     for i, e in enumerate(gPrimes):
@@ -176,5 +192,4 @@ def derivative(fx: str) -> str:
     return fPrime
 
 
-# print(derivative("2x^3+3x^0-5x^1+x^-6-5"))
-print(combine(splitFunction("2x^3+3x^0-5x^1+3x^3+x^-6-5")[0]))
+print(derivative("2x^3+3x^0-5x^1-3x^3+x^-6-5"))

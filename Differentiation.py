@@ -169,9 +169,11 @@ def combineFunction(gPrimes: list[str], symbols: list[str]) -> str:
             if i > 0:
                 if e[0] == '-':
                     fPrime += e if symbols[i - 1] == '+' else '+' + e[1:]
-                else: fPrime += symbols[i - 1]  + e
+                else:
+                    fPrime += symbols[i - 1] + e
 
-            else: fPrime = e
+            else:
+                fPrime = e
 
     return fPrime
 

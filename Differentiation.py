@@ -40,9 +40,54 @@ def getCoefficient(fx: str) -> int:
     else:
         return int(fx)
 
+
+def simpleSign(fx: str, baseSign: str = '+') -> str:
+    """
+    Simplifies +/- signs when concatinating terms
+
+    Return the correct sign
+    """
+    return '+' if baseSign == fx[0] else '-'
+
 # endregion
 
 # region Diff Rules : Basics
+
+
+def chain(fx: str):
+    """Takes the function ax^b and returns the derivative as a string"""
+    # Seperate the string into its parts
+    x = fx.find('x')
+    a = int(fx[:x]) if x > 0 else 0
+
+    # coef: str = ''
+    # for e in fx:
+    #    if e.isdecimal():
+    #        a
+
+    # 2 needs to be added to get to the other side of the ^
+    # Makes sure the string isn't empty later
+    b = fx[x+2:]
+    # If there is no exponent, just return the coefficeint
+    if not b:
+        return str(a)
+
+    else:
+        bNum = int(b)
+
+        # If the exponent is 1, remove x
+        if bNum == 1:
+            return str(a)
+        # If the exponent is 0, x == 1 and it's a constant
+        elif bNum == 0:
+            return '0'
+        # Else, power rule
+        else:
+            # Calulates the new values of a and b
+            ap = str(a * bNum) if a else b
+            bp = '' if bNum == 2 else '^' + str(bNum - 1)
+
+            return ap + "x" + bp
 
 
 def power(fx: str) -> str:
@@ -75,6 +120,30 @@ def power(fx: str) -> str:
             bp = '' if bNum == 2 else '^' + str(bNum - 1)
 
             return ap + "x" + bp
+
+
+def product(fx: str, gx: str) -> str:
+    """Takes two functions, f(x)*g(x), and returns the derivative as a string"""
+    fPrime = derivative(fx)
+    gPrime = derivative(gx)
+
+    return fPrime + '*' + gx + simpleSign(fPrime) + fx + '*' + gPrime
+
+
+def division(fx: str, gx: str) -> str:
+    """Takes two functions, f(x)/g(x), and returns the derivative as a string"""
+    fPrime = derivative(fx)
+    gPrime = derivative(gx)
+
+    return '(' + fPrime + '*' + gx + simpleSign(fPrime, '-') + fx + '*' + gPrime + ')/(' + gx + ')' + '^2'
+
+# endregion
+
+# region Diff Rules : Trigonometry
+
+
+def trig(fx: str):
+    """Returns the derivative of each trigonometric function"""
 
 # endregion
 
@@ -165,8 +234,9 @@ def combineFunction(gPrimes: list[str], symbols: list[str]) -> str:
         # Makes sure there is something in the string
         if e:
             # If there is a symbol in front of the subfunction, add the correct symbol
-
             if i > 0:
+                fPrime += simpleSign(e)
+
                 if e[0] == '-':
                     fPrime += e if symbols[i - 1] == '+' else '+' + e[1:]
                 else:

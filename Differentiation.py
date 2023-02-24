@@ -122,6 +122,21 @@ def power(fx: str) -> str:
             return ap + "x" + bp
 
 
+def chain(fx: str) -> str:
+    """Applies chain rule to a(g(x))^b and returns the derivaive as a string"""
+
+    gxIndex = fx.find('(')
+
+    # No subfunction
+    if gxIndex == -1:
+        return power(fx)
+    else:
+        a = fx[:gxIndex]
+        gx = fx[gxIndex+1:fx.find(')')]
+
+    return ""
+
+
 def product(fx: str, gx: str) -> str:
     """Takes two functions, f(x)*g(x), and returns the derivative as a string"""
     fPrime = derivative(fx)
@@ -144,6 +159,7 @@ def division(fx: str, gx: str) -> str:
 
 def trig(fx: str):
     """Returns the derivative of each trigonometric function"""
+    pass
 
 # endregion
 

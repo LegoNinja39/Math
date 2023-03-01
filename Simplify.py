@@ -39,7 +39,11 @@ def simpleSign(fx: str, baseSign: str = '+') -> str:
 
     Return the correct sign
     """
-    return '+' if baseSign == fx[0] else '-'
+
+    if baseSign == '+':
+        return '-' if fx[0] == '-' else '+'
+    else:
+        return '+' if fx[0] == '-' else '-'
 
 
 def combine(fxs: list[str]) -> list[str]:
@@ -78,7 +82,7 @@ def simplifyFunction(gPrimes: list[str], symbols: list[str]) -> str:
     """Combines the subfunctions"""
 
     fPrime: str = ""
-
+    print(symbols)
     # Combine like terms
     gPrimes = combine(gPrimes)
 
@@ -86,21 +90,23 @@ def simplifyFunction(gPrimes: list[str], symbols: list[str]) -> str:
     # Constant goes the the end
     gPrimes.sort(reverse=True, key=lambda x: getDegree(x)
                  if not isConstant(x) else float("-inf"))
-
+    print(gPrimes)
     # Iterates through each dirived subfunction and concatinates them
     for i, e in enumerate(gPrimes):
         # Makes sure there is something in the string
         if e:
             # If there is a symbol in front of the subfunction, add the correct symbol
             if i > 0:
-                fPrime += simpleSign(e)
+                fPrime += simpleSign(e) + \
+                    e[1:] if e[0] == '-' else simpleSign(e) + e
 
-                if e[0] == '-':
-                    fPrime += e if symbols[i - 1] == '+' else '+' + e[1:]
-                else:
-                    fPrime += symbols[i - 1] + e
+                # if e[0] == '-':
+                #     fPrime += e if symbols[i - 1] == '+' else '+' + e[1:]
+
+                # else:
+                #     fPrime += symbols[i - 1] + e
 
             else:
                 fPrime = e
-
+        print(fPrime)
     return fPrime

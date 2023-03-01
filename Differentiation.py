@@ -16,6 +16,8 @@ Finds the dirivtive of a function
         ^ : exp
 """
 
+import Simplify
+
 # region Helper Functions
 
 
@@ -52,42 +54,6 @@ def simpleSign(fx: str, baseSign: str = '+') -> str:
 # endregion
 
 # region Diff Rules : Basics
-
-
-def chain(fx: str):
-    """Takes the function ax^b and returns the derivative as a string"""
-    # Seperate the string into its parts
-    x = fx.find('x')
-    a = int(fx[:x]) if x > 0 else 0
-
-    # coef: str = ''
-    # for e in fx:
-    #    if e.isdecimal():
-    #        a
-
-    # 2 needs to be added to get to the other side of the ^
-    # Makes sure the string isn't empty later
-    b = fx[x+2:]
-    # If there is no exponent, just return the coefficeint
-    if not b:
-        return str(a)
-
-    else:
-        bNum = int(b)
-
-        # If the exponent is 1, remove x
-        if bNum == 1:
-            return str(a)
-        # If the exponent is 0, x == 1 and it's a constant
-        elif bNum == 0:
-            return '0'
-        # Else, power rule
-        else:
-            # Calulates the new values of a and b
-            ap = str(a * bNum) if a else b
-            bp = '' if bNum == 2 else '^' + str(bNum - 1)
-
-            return ap + "x" + bp
 
 
 def power(fx: str) -> str:
@@ -130,11 +96,20 @@ def chain(fx: str) -> str:
     # No subfunction
     if gxIndex == -1:
         return power(fx)
-    else:
-        a = fx[:gxIndex]
-        gx = fx[gxIndex+1:fx.find(')')]
 
-    return ""
+    gxEnd = fx.find(')')
+
+    a = fx[:gxIndex]
+    gx = fx[gxIndex+1:gxEnd]
+    b = fx[gxEnd+1:]
+
+    fPrime = derivative(a+'x'+b)
+    gPrime = derivative(gx)
+
+    deriv = fPrime[:fPrime.find('x')] + '(' + gx + ')' + \
+        fPrime[fPrime.find('x')+1:] + '*' + gPrime
+
+    return deriv
 
 
 def product(fx: str, gx: str) -> str:
@@ -155,6 +130,8 @@ def division(fx: str, gx: str) -> str:
 # endregion
 
 # region Diff Rules : Trigonometry
+
+# TODO Add Trig
 
 
 def trig(fx: str):
@@ -278,12 +255,13 @@ def derivative(fx: str) -> str:
     # Derive every subfunction
     for gx in gxes:
         if not isConstant(gx):
-            gPrimes.append(power(gx))
+            gPrimes.append(chain(gx))
 
     # Create the complete derived function
-    fPrime = combineFunction(gPrimes, g_s[1])
+    # fPrime = combineFunction(gPrimes, g_s[1])
+    fPrime = Simplify.simplifyFunction(gPrimes, g_s[1])
 
     return fPrime
 
 
-print(derivative("2x^3+3x^0-5x^1-3x^3+x^-6-5"))
+print(derivative("2x^3+3x^0-5x^1-3x^3-x^-6-5"))
